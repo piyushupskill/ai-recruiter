@@ -3,13 +3,22 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Recruiter API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: jobs
+    description: Job description management
+  - name: candidates
+    description: Candidate profile management
+  - name: rankings
+    description: AI candidate ranking operations
+  - name: stats
+    description: Dashboard statistics
+
 paths:
   /healthz:
     get:
@@ -24,6 +33,278 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── Jobs ───────────────────────────────────────────────────────────────────
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a new job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Created job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a job by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobUpdate"
+      responses:
+        "200":
+          description: Updated job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Candidates ─────────────────────────────────────────────────────────────
+  /candidates:
+    get:
+      operationId: listCandidates
+      tags: [candidates]
+      summary: List all candidates
+      responses:
+        "200":
+          description: List of candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Candidate"
+    post:
+      operationId: createCandidate
+      tags: [candidates]
+      summary: Create a new candidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CandidateInput"
+      responses:
+        "201":
+          description: Created candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+
+  /candidates/{id}:
+    get:
+      operationId: getCandidate
+      tags: [candidates]
+      summary: Get a candidate by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateCandidate
+      tags: [candidates]
+      summary: Update a candidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CandidateUpdate"
+      responses:
+        "200":
+          description: Updated candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCandidate
+      tags: [candidates]
+      summary: Delete a candidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─── Rankings ────────────────────────────────────────────────────────────────
+  /rankings/run:
+    post:
+      operationId: runRanking
+      tags: [rankings]
+      summary: Run AI ranking of candidates for a job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RankingRunInput"
+      responses:
+        "200":
+          description: Ranked results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RankingResult"
+
+  /rankings/job/{jobId}:
+    get:
+      operationId: getRankingsForJob
+      tags: [rankings]
+      summary: Get saved ranking results for a job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ranking results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CandidateRank"
+        "404":
+          description: Not found
+
+  /rankings/history:
+    get:
+      operationId: listRankingHistory
+      tags: [rankings]
+      summary: Recent ranking runs with metadata
+      responses:
+        "200":
+          description: Ranking history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RankingHistoryItem"
+
+  # ─── Stats ───────────────────────────────────────────────────────────────────
+  /stats/overview:
+    get:
+      operationId: getStatsOverview
+      tags: [stats]
+      summary: Dashboard summary statistics
+      responses:
+        "200":
+          description: Stats overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsOverview"
+
+  /stats/top-candidates:
+    get:
+      operationId: getTopCandidates
+      tags: [stats]
+      summary: Top-ranked candidates across all recent runs
+      responses:
+        "200":
+          description: Top candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TopCandidate"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +315,377 @@ components:
       required:
         - status
 
+    # ─── Job schemas ───────────────────────────────────────────────────────────
+    Job:
+      type: object
+      required: [id, title, description, requiredSkills, niceToHaveSkills, minYearsExperience, seniorityLevel, status, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        department:
+          type: ["string", "null"]
+        requiredSkills:
+          type: array
+          items:
+            type: string
+        niceToHaveSkills:
+          type: array
+          items:
+            type: string
+        minYearsExperience:
+          type: integer
+        seniorityLevel:
+          type: string
+        employmentType:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        remotePolicy:
+          type: ["string", "null"]
+        status:
+          type: string
+        candidateCount:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    JobInput:
+      type: object
+      required: [title, description, requiredSkills, minYearsExperience, seniorityLevel]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        department:
+          type: string
+        requiredSkills:
+          type: array
+          items:
+            type: string
+        niceToHaveSkills:
+          type: array
+          items:
+            type: string
+        minYearsExperience:
+          type: integer
+          minimum: 0
+        seniorityLevel:
+          type: string
+        employmentType:
+          type: string
+        location:
+          type: string
+        remotePolicy:
+          type: string
+        status:
+          type: string
+
+    JobUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        department:
+          type: string
+        requiredSkills:
+          type: array
+          items:
+            type: string
+        niceToHaveSkills:
+          type: array
+          items:
+            type: string
+        minYearsExperience:
+          type: integer
+        seniorityLevel:
+          type: string
+        employmentType:
+          type: string
+        location:
+          type: string
+        remotePolicy:
+          type: string
+        status:
+          type: string
+
+    # ─── Candidate schemas ─────────────────────────────────────────────────────
+    Candidate:
+      type: object
+      required: [id, name, email, skills, yearsExperience, currentTitle, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        currentTitle:
+          type: string
+        currentCompany:
+          type: ["string", "null"]
+        yearsExperience:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        education:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        githubUrl:
+          type: ["string", "null"]
+        portfolioUrl:
+          type: ["string", "null"]
+        summary:
+          type: ["string", "null"]
+        openToRemote:
+          type: boolean
+        availabilityWeeks:
+          type: ["integer", "null"]
+        expectedSalary:
+          type: ["integer", "null"]
+        activityScore:
+          type: ["integer", "null"]
+        responseRate:
+          type: ["integer", "null"]
+        careerProgression:
+          type: ["string", "null"]
+        notableAchievements:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+
+    CandidateInput:
+      type: object
+      required: [name, email, skills, yearsExperience, currentTitle]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        currentTitle:
+          type: string
+        currentCompany:
+          type: string
+        yearsExperience:
+          type: integer
+          minimum: 0
+        skills:
+          type: array
+          items:
+            type: string
+        education:
+          type: string
+        location:
+          type: string
+        linkedinUrl:
+          type: string
+        githubUrl:
+          type: string
+        portfolioUrl:
+          type: string
+        summary:
+          type: string
+        openToRemote:
+          type: boolean
+        availabilityWeeks:
+          type: integer
+        expectedSalary:
+          type: integer
+        activityScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        responseRate:
+          type: integer
+          minimum: 0
+          maximum: 100
+        careerProgression:
+          type: string
+        notableAchievements:
+          type: array
+          items:
+            type: string
+
+    CandidateUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        currentTitle:
+          type: string
+        currentCompany:
+          type: string
+        yearsExperience:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: string
+        education:
+          type: string
+        location:
+          type: string
+        linkedinUrl:
+          type: string
+        githubUrl:
+          type: string
+        portfolioUrl:
+          type: string
+        summary:
+          type: string
+        openToRemote:
+          type: boolean
+        availabilityWeeks:
+          type: integer
+        expectedSalary:
+          type: integer
+        activityScore:
+          type: integer
+        responseRate:
+          type: integer
+        careerProgression:
+          type: string
+        notableAchievements:
+          type: array
+          items:
+            type: string
+
+    # ─── Ranking schemas ───────────────────────────────────────────────────────
+    RankingRunInput:
+      type: object
+      required: [jobId]
+      properties:
+        jobId:
+          type: integer
+        candidateIds:
+          type: array
+          items:
+            type: integer
+
+    CandidateRank:
+      type: object
+      required: [id, candidateId, jobId, overallScore, skillMatchScore, experienceScore, careerTrajectoryScore, culturalSignalScore, availabilityScore, rank, verdict, reasoning, strengthHighlights, gapHighlights, createdAt]
+      properties:
+        id:
+          type: integer
+        candidateId:
+          type: integer
+        jobId:
+          type: integer
+        overallScore:
+          type: integer
+        skillMatchScore:
+          type: integer
+        experienceScore:
+          type: integer
+        careerTrajectoryScore:
+          type: integer
+        culturalSignalScore:
+          type: integer
+        availabilityScore:
+          type: integer
+        rank:
+          type: integer
+        verdict:
+          type: string
+        reasoning:
+          type: string
+        strengthHighlights:
+          type: array
+          items:
+            type: string
+        gapHighlights:
+          type: array
+          items:
+            type: string
+        candidateName:
+          type: ["string", "null"]
+        candidateTitle:
+          type: ["string", "null"]
+        candidateSkills:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+
+    RankingResult:
+      type: object
+      required: [jobId, jobTitle, rankedCandidates, ranAt]
+      properties:
+        jobId:
+          type: integer
+        jobTitle:
+          type: string
+        rankedCandidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/CandidateRank"
+        ranAt:
+          type: string
+
+    RankingHistoryItem:
+      type: object
+      required: [jobId, jobTitle, candidateCount, topScore, ranAt]
+      properties:
+        jobId:
+          type: integer
+        jobTitle:
+          type: string
+        candidateCount:
+          type: integer
+        topScore:
+          type: integer
+        ranAt:
+          type: string
+
+    # ─── Stats schemas ─────────────────────────────────────────────────────────
+    StatsOverview:
+      type: object
+      required: [totalJobs, activeJobs, totalCandidates, rankingRunsTotal, avgTopScore]
+      properties:
+        totalJobs:
+          type: integer
+        activeJobs:
+          type: integer
+        totalCandidates:
+          type: integer
+        rankingRunsTotal:
+          type: integer
+        avgTopScore:
+          type: integer
+
+    TopCandidate:
+      type: object
+      required: [candidateId, candidateName, candidateTitle, bestScore, jobTitle, rank]
+      properties:
+        candidateId:
+          type: integer
+        candidateName:
+          type: string
+        candidateTitle:
+          type: string
+        bestScore:
+          type: integer
+        jobTitle:
+          type: string
+        rank:
+          type: integer
