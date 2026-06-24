@@ -1,22 +1,29 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AI Recruiter API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: jobs
+    description: Job postings
+  - name: candidates
+    description: Candidate profiles
+  - name: applications
+    description: Job applications and pipeline
+  - name: pipeline
+    description: Pipeline statistics and overview
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +31,354 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List all jobs
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, closed, draft]
+      responses:
+        "200":
+          description: List of jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a new job posting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get a job posting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update a job posting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete a job posting
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /candidates:
+    get:
+      operationId: listCandidates
+      tags: [candidates]
+      summary: List all candidates
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+        - name: stage
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Candidate"
+    post:
+      operationId: createCandidate
+      tags: [candidates]
+      summary: Add a candidate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CandidateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+
+  /candidates/{id}:
+    get:
+      operationId: getCandidate
+      tags: [candidates]
+      summary: Get a candidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateCandidate
+      tags: [candidates]
+      summary: Update a candidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CandidateUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candidate"
+    delete:
+      operationId: deleteCandidate
+      tags: [candidates]
+      summary: Delete a candidate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List applications
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+        - name: candidateId
+          in: query
+          schema:
+            type: integer
+        - name: stage
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of applications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+    post:
+      operationId: createApplication
+      tags: [applications]
+      summary: Create an application (link candidate to job)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+
+  /applications/{id}:
+    get:
+      operationId: getApplication
+      tags: [applications]
+      summary: Get an application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update application (stage, notes, score)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+    delete:
+      operationId: deleteApplication
+      tags: [applications]
+      summary: Delete an application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /pipeline/stats:
+    get:
+      operationId: getPipelineStats
+      tags: [pipeline]
+      summary: Get pipeline overview statistics
+      responses:
+        "200":
+          description: Pipeline stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineStats"
+
+  /pipeline/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [pipeline]
+      summary: Get recent activity feed
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Recent activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /pipeline/funnel:
+    get:
+      operationId: getPipelineFunnel
+      tags: [pipeline]
+      summary: Get stage-by-stage funnel counts
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Funnel breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FunnelStage"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +389,286 @@ components:
       required:
         - status
 
+    Job:
+      type: object
+      required: [id, title, department, location, status, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        department:
+          type: string
+        location:
+          type: string
+        status:
+          type: string
+          enum: [open, closed, draft]
+        description:
+          type: ["string", "null"]
+        requirements:
+          type: ["string", "null"]
+        employmentType:
+          type: ["string", "null"]
+        salaryMin:
+          type: ["integer", "null"]
+        salaryMax:
+          type: ["integer", "null"]
+        applicantCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    JobInput:
+      type: object
+      required: [title, department, location]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        department:
+          type: string
+        location:
+          type: string
+        status:
+          type: string
+          enum: [open, closed, draft]
+        description:
+          type: string
+        requirements:
+          type: string
+        employmentType:
+          type: string
+        salaryMin:
+          type: integer
+        salaryMax:
+          type: integer
+
+    JobUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        department:
+          type: string
+        location:
+          type: string
+        status:
+          type: string
+          enum: [open, closed, draft]
+        description:
+          type: string
+        requirements:
+          type: string
+        employmentType:
+          type: string
+        salaryMin:
+          type: integer
+        salaryMax:
+          type: integer
+
+    Candidate:
+      type: object
+      required: [id, name, email, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        currentTitle:
+          type: ["string", "null"]
+        currentCompany:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        githubUrl:
+          type: ["string", "null"]
+        resumeSummary:
+          type: ["string", "null"]
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CandidateInput:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+        phone:
+          type: string
+        currentTitle:
+          type: string
+        currentCompany:
+          type: string
+        location:
+          type: string
+        linkedinUrl:
+          type: string
+        githubUrl:
+          type: string
+        resumeSummary:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    CandidateUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        currentTitle:
+          type: string
+        currentCompany:
+          type: string
+        location:
+          type: string
+        linkedinUrl:
+          type: string
+        githubUrl:
+          type: string
+        resumeSummary:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    Application:
+      type: object
+      required: [id, jobId, candidateId, stage, createdAt]
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        candidateId:
+          type: integer
+        stage:
+          type: string
+          enum: [applied, screening, interview, offer, hired, rejected]
+        fitScore:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        rejectionReason:
+          type: ["string", "null"]
+        outreachStatus:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        job:
+          $ref: "#/components/schemas/Job"
+        candidate:
+          $ref: "#/components/schemas/Candidate"
+
+    ApplicationInput:
+      type: object
+      required: [jobId, candidateId]
+      properties:
+        jobId:
+          type: integer
+        candidateId:
+          type: integer
+        stage:
+          type: string
+          enum: [applied, screening, interview, offer, hired, rejected]
+        fitScore:
+          type: integer
+        notes:
+          type: string
+
+    ApplicationUpdate:
+      type: object
+      properties:
+        stage:
+          type: string
+          enum: [applied, screening, interview, offer, hired, rejected]
+        fitScore:
+          type: integer
+        notes:
+          type: string
+        rejectionReason:
+          type: string
+        outreachStatus:
+          type: string
+
+    PipelineStats:
+      type: object
+      required: [totalJobs, openJobs, totalCandidates, activeApplications, hiredThisMonth, avgFitScore, stageBreakdown]
+      properties:
+        totalJobs:
+          type: integer
+        openJobs:
+          type: integer
+        totalCandidates:
+          type: integer
+        activeApplications:
+          type: integer
+        hiredThisMonth:
+          type: integer
+        avgFitScore:
+          type: ["number", "null"]
+        stageBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        candidateName:
+          type: ["string", "null"]
+        jobTitle:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    FunnelStage:
+      type: object
+      required: [stage, count, percentage]
+      properties:
+        stage:
+          type: string
+        count:
+          type: integer
+        percentage:
+          type: number
