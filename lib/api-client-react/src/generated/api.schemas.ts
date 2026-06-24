@@ -233,6 +233,133 @@ export interface FunnelStage {
   percentage: number;
 }
 
+export interface BooleanSearch {
+  label: string;
+  title: string;
+  keywords: string;
+}
+
+export interface LinkedinSearchUrl {
+  label: string;
+  url: string;
+  angle: string;
+}
+
+export interface SourcingChannel {
+  channel: string;
+  bestFor: string;
+  tactic: string;
+}
+
+export interface SourcingStrategy {
+  jobTitle: string;
+  booleanStrings: BooleanSearch[];
+  linkedinUrls: LinkedinSearchUrl[];
+  channels: SourcingChannel[];
+}
+
+export interface Competency {
+  name: string;
+  questions: string[];
+}
+
+export interface InterviewStage {
+  stage: string;
+  interviewer: string;
+  competencies: Competency[];
+}
+
+export interface InterviewQuestionBank {
+  jobTitle: string;
+  stages: InterviewStage[];
+}
+
+export interface EmailTemplate {
+  type: string;
+  subject: string;
+  body: string;
+}
+
+export type EmailTemplateRequestType = typeof EmailTemplateRequestType[keyof typeof EmailTemplateRequestType];
+
+
+export const EmailTemplateRequestType = {
+  advancement: 'advancement',
+  rejection: 'rejection',
+  hold: 'hold',
+  offer: 'offer',
+  interview_invite: 'interview_invite',
+  outreach: 'outreach',
+  follow_up: 'follow_up',
+} as const;
+
+export interface EmailTemplateRequest {
+  type: EmailTemplateRequestType;
+}
+
+export type ScreeningResultRecommendation = typeof ScreeningResultRecommendation[keyof typeof ScreeningResultRecommendation];
+
+
+export const ScreeningResultRecommendation = {
+  advance: 'advance',
+  hold: 'hold',
+  reject: 'reject',
+} as const;
+
+export interface ScreeningResult {
+  fitScore: number;
+  recommendation: ScreeningResultRecommendation;
+  mustHaveScore: string;
+  strengths: string[];
+  gaps: string[];
+  notes: string;
+}
+
+export type ScreeningInputRecommendation = typeof ScreeningInputRecommendation[keyof typeof ScreeningInputRecommendation];
+
+
+export const ScreeningInputRecommendation = {
+  advance: 'advance',
+  hold: 'hold',
+  reject: 'reject',
+} as const;
+
+export interface ScreeningInput {
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  fitScore: number;
+  recommendation: ScreeningInputRecommendation;
+  mustHaveScore?: string;
+  strengths?: string[];
+  gaps?: string[];
+  notes?: string;
+}
+
+export type BulkStageUpdateStage = typeof BulkStageUpdateStage[keyof typeof BulkStageUpdateStage];
+
+
+export const BulkStageUpdateStage = {
+  applied: 'applied',
+  screening: 'screening',
+  interview: 'interview',
+  offer: 'offer',
+  hired: 'hired',
+  rejected: 'rejected',
+} as const;
+
+export interface BulkStageUpdate {
+  applicationIds: number[];
+  stage: BulkStageUpdateStage;
+  notes?: string;
+}
+
+export interface BulkStageResult {
+  updated: number;
+  failed: number;
+}
+
 export type ListJobsParams = {
 status?: ListJobsStatus;
 };
@@ -259,6 +386,11 @@ stage?: string;
 
 export type GetRecentActivityParams = {
 limit?: number;
+};
+
+export type ExportCandidatesParams = {
+jobId?: number;
+stage?: string;
 };
 
 export type GetPipelineFunnelParams = {

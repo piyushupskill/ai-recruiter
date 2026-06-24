@@ -24,20 +24,28 @@ import type {
   Application,
   ApplicationInput,
   ApplicationUpdate,
+  BulkStageResult,
+  BulkStageUpdate,
   Candidate,
   CandidateInput,
   CandidateUpdate,
+  EmailTemplate,
+  EmailTemplateRequest,
+  ExportCandidatesParams,
   FunnelStage,
   GetPipelineFunnelParams,
   GetRecentActivityParams,
   HealthStatus,
+  InterviewQuestionBank,
   Job,
   JobInput,
   JobUpdate,
   ListApplicationsParams,
   ListCandidatesParams,
   ListJobsParams,
-  PipelineStats
+  PipelineStats,
+  ScreeningInput,
+  SourcingStrategy
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1400,6 +1408,459 @@ export function useGetRecentActivity<TData = Awaited<ReturnType<typeof getRecent
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetRecentActivityQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetJobSourcingUrl = (id: number,) => {
+
+
+
+
+  return `/api/jobs/${id}/sourcing`
+}
+
+/**
+ * @summary Get sourcing strategy with Boolean search strings and LinkedIn URLs
+ */
+export const getJobSourcing = async (id: number, options?: RequestInit): Promise<SourcingStrategy> => {
+
+  return customFetch<SourcingStrategy>(getGetJobSourcingUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetJobSourcingQueryKey = (id: number,) => {
+    return [
+    `/api/jobs/${id}/sourcing`
+    ] as const;
+    }
+
+
+export const getGetJobSourcingQueryOptions = <TData = Awaited<ReturnType<typeof getJobSourcing>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getJobSourcing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetJobSourcingQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getJobSourcing>>> = ({ signal }) => getJobSourcing(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getJobSourcing>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetJobSourcingQueryResult = NonNullable<Awaited<ReturnType<typeof getJobSourcing>>>
+export type GetJobSourcingQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get sourcing strategy with Boolean search strings and LinkedIn URLs
+ */
+
+export function useGetJobSourcing<TData = Awaited<ReturnType<typeof getJobSourcing>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getJobSourcing>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetJobSourcingQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInterviewQuestionsUrl = (id: number,) => {
+
+
+
+
+  return `/api/jobs/${id}/interview-questions`
+}
+
+/**
+ * @summary Get stage-by-stage interview question bank for a job
+ */
+export const getInterviewQuestions = async (id: number, options?: RequestInit): Promise<InterviewQuestionBank> => {
+
+  return customFetch<InterviewQuestionBank>(getGetInterviewQuestionsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInterviewQuestionsQueryKey = (id: number,) => {
+    return [
+    `/api/jobs/${id}/interview-questions`
+    ] as const;
+    }
+
+
+export const getGetInterviewQuestionsQueryOptions = <TData = Awaited<ReturnType<typeof getInterviewQuestions>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInterviewQuestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInterviewQuestionsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInterviewQuestions>>> = ({ signal }) => getInterviewQuestions(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInterviewQuestions>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInterviewQuestionsQueryResult = NonNullable<Awaited<ReturnType<typeof getInterviewQuestions>>>
+export type GetInterviewQuestionsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get stage-by-stage interview question bank for a job
+ */
+
+export function useGetInterviewQuestions<TData = Awaited<ReturnType<typeof getInterviewQuestions>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInterviewQuestions>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInterviewQuestionsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGenerateEmailTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/applications/${id}/email-template`
+}
+
+/**
+ * @summary Generate an email template for a candidate at this application stage
+ */
+export const generateEmailTemplate = async (id: number,
+    emailTemplateRequest: EmailTemplateRequest, options?: RequestInit): Promise<EmailTemplate> => {
+
+  return customFetch<EmailTemplate>(getGenerateEmailTemplateUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      emailTemplateRequest,)
+  }
+);}
+
+
+
+
+export const getGenerateEmailTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateEmailTemplate>>, TError,{id: number;data: BodyType<EmailTemplateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateEmailTemplate>>, TError,{id: number;data: BodyType<EmailTemplateRequest>}, TContext> => {
+
+const mutationKey = ['generateEmailTemplate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateEmailTemplate>>, {id: number;data: BodyType<EmailTemplateRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  generateEmailTemplate(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateEmailTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof generateEmailTemplate>>>
+    export type GenerateEmailTemplateMutationBody = BodyType<EmailTemplateRequest>
+    export type GenerateEmailTemplateMutationError = ErrorType<void>
+
+    /**
+ * @summary Generate an email template for a candidate at this application stage
+ */
+export const useGenerateEmailTemplate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateEmailTemplate>>, TError,{id: number;data: BodyType<EmailTemplateRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateEmailTemplate>>,
+        TError,
+        {id: number;data: BodyType<EmailTemplateRequest>},
+        TContext
+      > => {
+      return useMutation(getGenerateEmailTemplateMutationOptions(options));
+    }
+
+export const getScreenApplicationUrl = (id: number,) => {
+
+
+
+
+  return `/api/applications/${id}/screen`
+}
+
+/**
+ * @summary Save a CV screening evaluation for an application
+ */
+export const screenApplication = async (id: number,
+    screeningInput: ScreeningInput, options?: RequestInit): Promise<Application> => {
+
+  return customFetch<Application>(getScreenApplicationUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      screeningInput,)
+  }
+);}
+
+
+
+
+export const getScreenApplicationMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof screenApplication>>, TError,{id: number;data: BodyType<ScreeningInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof screenApplication>>, TError,{id: number;data: BodyType<ScreeningInput>}, TContext> => {
+
+const mutationKey = ['screenApplication'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof screenApplication>>, {id: number;data: BodyType<ScreeningInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  screenApplication(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ScreenApplicationMutationResult = NonNullable<Awaited<ReturnType<typeof screenApplication>>>
+    export type ScreenApplicationMutationBody = BodyType<ScreeningInput>
+    export type ScreenApplicationMutationError = ErrorType<void>
+
+    /**
+ * @summary Save a CV screening evaluation for an application
+ */
+export const useScreenApplication = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof screenApplication>>, TError,{id: number;data: BodyType<ScreeningInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof screenApplication>>,
+        TError,
+        {id: number;data: BodyType<ScreeningInput>},
+        TContext
+      > => {
+      return useMutation(getScreenApplicationMutationOptions(options));
+    }
+
+export const getBulkUpdateStageUrl = () => {
+
+
+
+
+  return `/api/applications/bulk-stage`
+}
+
+/**
+ * @summary Move multiple applications to a new stage
+ */
+export const bulkUpdateStage = async (bulkStageUpdate: BulkStageUpdate, options?: RequestInit): Promise<BulkStageResult> => {
+
+  return customFetch<BulkStageResult>(getBulkUpdateStageUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      bulkStageUpdate,)
+  }
+);}
+
+
+
+
+export const getBulkUpdateStageMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateStage>>, TError,{data: BodyType<BulkStageUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateStage>>, TError,{data: BodyType<BulkStageUpdate>}, TContext> => {
+
+const mutationKey = ['bulkUpdateStage'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof bulkUpdateStage>>, {data: BodyType<BulkStageUpdate>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  bulkUpdateStage(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type BulkUpdateStageMutationResult = NonNullable<Awaited<ReturnType<typeof bulkUpdateStage>>>
+    export type BulkUpdateStageMutationBody = BodyType<BulkStageUpdate>
+    export type BulkUpdateStageMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Move multiple applications to a new stage
+ */
+export const useBulkUpdateStage = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof bulkUpdateStage>>, TError,{data: BodyType<BulkStageUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof bulkUpdateStage>>,
+        TError,
+        {data: BodyType<BulkStageUpdate>},
+        TContext
+      > => {
+      return useMutation(getBulkUpdateStageMutationOptions(options));
+    }
+
+export const getExportCandidatesUrl = (params?: ExportCandidatesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/candidates/export?${stringifiedParams}` : `/api/candidates/export`
+}
+
+/**
+ * @summary Export candidates as CSV
+ */
+export const exportCandidates = async (params?: ExportCandidatesParams, options?: RequestInit): Promise<string> => {
+
+  return customFetch<string>(getExportCandidatesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getExportCandidatesQueryKey = (params?: ExportCandidatesParams,) => {
+    return [
+    `/api/candidates/export`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getExportCandidatesQueryOptions = <TData = Awaited<ReturnType<typeof exportCandidates>>, TError = ErrorType<unknown>>(params?: ExportCandidatesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportCandidates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getExportCandidatesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportCandidates>>> = ({ signal }) => exportCandidates(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportCandidates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ExportCandidatesQueryResult = NonNullable<Awaited<ReturnType<typeof exportCandidates>>>
+export type ExportCandidatesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Export candidates as CSV
+ */
+
+export function useExportCandidates<TData = Awaited<ReturnType<typeof exportCandidates>>, TError = ErrorType<unknown>>(
+ params?: ExportCandidatesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportCandidates>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getExportCandidatesQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

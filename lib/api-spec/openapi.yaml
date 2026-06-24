@@ -17,6 +17,8 @@ tags:
     description: Job applications and pipeline
   - name: pipeline
     description: Pipeline statistics and overview
+  - name: tools
+    description: Recruiter productivity tools
 
 paths:
   /healthz:
@@ -359,6 +361,143 @@ paths:
                 items:
                   $ref: "#/components/schemas/ActivityItem"
 
+  /jobs/{id}/sourcing:
+    get:
+      operationId: getJobSourcing
+      tags: [tools]
+      summary: Get sourcing strategy with Boolean search strings and LinkedIn URLs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sourcing strategy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourcingStrategy"
+        "404":
+          description: Not found
+
+  /jobs/{id}/interview-questions:
+    get:
+      operationId: getInterviewQuestions
+      tags: [tools]
+      summary: Get stage-by-stage interview question bank for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Interview question bank
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterviewQuestionBank"
+        "404":
+          description: Not found
+
+  /applications/{id}/email-template:
+    post:
+      operationId: generateEmailTemplate
+      tags: [tools]
+      summary: Generate an email template for a candidate at this application stage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailTemplateRequest"
+      responses:
+        "200":
+          description: Email template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailTemplate"
+        "404":
+          description: Not found
+
+  /applications/{id}/screen:
+    post:
+      operationId: screenApplication
+      tags: [tools]
+      summary: Save a CV screening evaluation for an application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScreeningInput"
+      responses:
+        "200":
+          description: Updated application with screening result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "404":
+          description: Not found
+
+  /applications/bulk-stage:
+    patch:
+      operationId: bulkUpdateStage
+      tags: [applications]
+      summary: Move multiple applications to a new stage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkStageUpdate"
+      responses:
+        "200":
+          description: Bulk update result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkStageResult"
+
+  /candidates/export:
+    get:
+      operationId: exportCandidates
+      tags: [candidates]
+      summary: Export candidates as CSV
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+        - name: stage
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV file
+          content:
+            text/csv:
+              schema:
+                type: string
+
   /pipeline/funnel:
     get:
       operationId: getPipelineFunnel
@@ -672,3 +811,178 @@ components:
           type: integer
         percentage:
           type: number
+
+    SourcingStrategy:
+      type: object
+      required: [jobTitle, booleanStrings, linkedinUrls, channels]
+      properties:
+        jobTitle:
+          type: string
+        booleanStrings:
+          type: array
+          items:
+            $ref: "#/components/schemas/BooleanSearch"
+        linkedinUrls:
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkedinSearchUrl"
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourcingChannel"
+
+    BooleanSearch:
+      type: object
+      required: [label, title, keywords]
+      properties:
+        label:
+          type: string
+        title:
+          type: string
+        keywords:
+          type: string
+
+    LinkedinSearchUrl:
+      type: object
+      required: [label, url, angle]
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+        angle:
+          type: string
+
+    SourcingChannel:
+      type: object
+      required: [channel, bestFor, tactic]
+      properties:
+        channel:
+          type: string
+        bestFor:
+          type: string
+        tactic:
+          type: string
+
+    InterviewQuestionBank:
+      type: object
+      required: [jobTitle, stages]
+      properties:
+        jobTitle:
+          type: string
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/InterviewStage"
+
+    InterviewStage:
+      type: object
+      required: [stage, interviewer, competencies]
+      properties:
+        stage:
+          type: string
+        interviewer:
+          type: string
+        competencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Competency"
+
+    Competency:
+      type: object
+      required: [name, questions]
+      properties:
+        name:
+          type: string
+        questions:
+          type: array
+          items:
+            type: string
+
+    EmailTemplate:
+      type: object
+      required: [type, subject, body]
+      properties:
+        type:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+
+    EmailTemplateRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [advancement, rejection, hold, offer, interview_invite, outreach, follow_up]
+
+    ScreeningResult:
+      type: object
+      required: [fitScore, recommendation, mustHaveScore, strengths, gaps, notes]
+      properties:
+        fitScore:
+          type: integer
+        recommendation:
+          type: string
+          enum: [advance, hold, reject]
+        mustHaveScore:
+          type: string
+        strengths:
+          type: array
+          items:
+            type: string
+        gaps:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+
+    ScreeningInput:
+      type: object
+      required: [fitScore, recommendation]
+      properties:
+        fitScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+        recommendation:
+          type: string
+          enum: [advance, hold, reject]
+        mustHaveScore:
+          type: string
+        strengths:
+          type: array
+          items:
+            type: string
+        gaps:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+
+    BulkStageUpdate:
+      type: object
+      required: [applicationIds, stage]
+      properties:
+        applicationIds:
+          type: array
+          items:
+            type: integer
+        stage:
+          type: string
+          enum: [applied, screening, interview, offer, hired, rejected]
+        notes:
+          type: string
+
+    BulkStageResult:
+      type: object
+      required: [updated, failed]
+      properties:
+        updated:
+          type: integer
+        failed:
+          type: integer

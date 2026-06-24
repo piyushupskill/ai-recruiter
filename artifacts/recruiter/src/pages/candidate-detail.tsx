@@ -3,12 +3,14 @@ import { useParams, Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Mail, Phone, MapPin, Briefcase, Github, Linkedin, ArrowLeft, Star, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Briefcase, Github, Linkedin, ArrowLeft, Star, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { EmailTemplatesPanel } from "@/components/email-templates-panel";
+import { CvScreeningPanel } from "@/components/cv-screening-panel";
 
 const stages = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected'];
 
@@ -139,6 +141,12 @@ export default function CandidateDetail() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
+                        <EmailTemplatesPanel applicationId={app.id}>
+                          <Button variant="outline" size="sm"><Mail className="w-4 h-4 mr-2" /> Email</Button>
+                        </EmailTemplatesPanel>
+                        <CvScreeningPanel applicationId={app.id}>
+                          <Button variant="outline" size="sm"><FileText className="w-4 h-4 mr-2" /> Screen CV</Button>
+                        </CvScreeningPanel>
                         {app.fitScore !== null && app.fitScore !== undefined && (
                           <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                             <Star className="w-3 h-3 mr-1 fill-current" />

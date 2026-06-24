@@ -462,6 +462,160 @@ export const GetRecentActivityResponse = zod.array(GetRecentActivityResponseItem
 
 
 /**
+ * @summary Get sourcing strategy with Boolean search strings and LinkedIn URLs
+ */
+export const GetJobSourcingParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetJobSourcingResponse = zod.object({
+  "jobTitle": zod.string(),
+  "booleanStrings": zod.array(zod.object({
+  "label": zod.string(),
+  "title": zod.string(),
+  "keywords": zod.string()
+})),
+  "linkedinUrls": zod.array(zod.object({
+  "label": zod.string(),
+  "url": zod.string(),
+  "angle": zod.string()
+})),
+  "channels": zod.array(zod.object({
+  "channel": zod.string(),
+  "bestFor": zod.string(),
+  "tactic": zod.string()
+}))
+})
+
+
+/**
+ * @summary Get stage-by-stage interview question bank for a job
+ */
+export const GetInterviewQuestionsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetInterviewQuestionsResponse = zod.object({
+  "jobTitle": zod.string(),
+  "stages": zod.array(zod.object({
+  "stage": zod.string(),
+  "interviewer": zod.string(),
+  "competencies": zod.array(zod.object({
+  "name": zod.string(),
+  "questions": zod.array(zod.string())
+}))
+}))
+})
+
+
+/**
+ * @summary Generate an email template for a candidate at this application stage
+ */
+export const GenerateEmailTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GenerateEmailTemplateBody = zod.object({
+  "type": zod.enum(['advancement', 'rejection', 'hold', 'offer', 'interview_invite', 'outreach', 'follow_up'])
+})
+
+export const GenerateEmailTemplateResponse = zod.object({
+  "type": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string()
+})
+
+
+/**
+ * @summary Save a CV screening evaluation for an application
+ */
+export const ScreenApplicationParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const screenApplicationBodyFitScoreMin = 0;
+export const screenApplicationBodyFitScoreMax = 100;
+
+
+
+export const ScreenApplicationBody = zod.object({
+  "fitScore": zod.number().min(screenApplicationBodyFitScoreMin).max(screenApplicationBodyFitScoreMax),
+  "recommendation": zod.enum(['advance', 'hold', 'reject']),
+  "mustHaveScore": zod.string().optional(),
+  "strengths": zod.array(zod.string()).optional(),
+  "gaps": zod.array(zod.string()).optional(),
+  "notes": zod.string().optional()
+})
+
+export const ScreenApplicationResponse = zod.object({
+  "id": zod.number(),
+  "jobId": zod.number(),
+  "candidateId": zod.number(),
+  "stage": zod.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']),
+  "fitScore": zod.number().nullish(),
+  "notes": zod.string().nullish(),
+  "rejectionReason": zod.string().nullish(),
+  "outreachStatus": zod.string().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional(),
+  "job": zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "department": zod.string(),
+  "location": zod.string(),
+  "status": zod.enum(['open', 'closed', 'draft']),
+  "description": zod.string().nullish(),
+  "requirements": zod.string().nullish(),
+  "employmentType": zod.string().nullish(),
+  "salaryMin": zod.number().nullish(),
+  "salaryMax": zod.number().nullish(),
+  "applicantCount": zod.number().optional(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+}).optional(),
+  "candidate": zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "currentTitle": zod.string().nullish(),
+  "currentCompany": zod.string().nullish(),
+  "location": zod.string().nullish(),
+  "linkedinUrl": zod.string().nullish(),
+  "githubUrl": zod.string().nullish(),
+  "resumeSummary": zod.string().nullish(),
+  "tags": zod.array(zod.string()).optional(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().optional()
+}).optional()
+})
+
+
+/**
+ * @summary Move multiple applications to a new stage
+ */
+export const BulkUpdateStageBody = zod.object({
+  "applicationIds": zod.array(zod.number()),
+  "stage": zod.enum(['applied', 'screening', 'interview', 'offer', 'hired', 'rejected']),
+  "notes": zod.string().optional()
+})
+
+export const BulkUpdateStageResponse = zod.object({
+  "updated": zod.number(),
+  "failed": zod.number()
+})
+
+
+/**
+ * @summary Export candidates as CSV
+ */
+export const ExportCandidatesQueryParams = zod.object({
+  "jobId": zod.coerce.number().optional(),
+  "stage": zod.coerce.string().optional()
+})
+
+
+/**
  * @summary Get stage-by-stage funnel counts
  */
 export const GetPipelineFunnelQueryParams = zod.object({

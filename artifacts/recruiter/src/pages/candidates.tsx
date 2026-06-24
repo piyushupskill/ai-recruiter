@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Mail, Building2, MapPin, Github, Linkedin, Star, Briefcase } from "lucide-react";
+import { Search, Plus, Mail, Building2, MapPin, Github, Linkedin, Star, Briefcase, Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,12 +29,17 @@ export default function CandidatesList() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Talent Pool</h1>
           <p className="text-slate-500 mt-1">Browse and manage all candidates in your database.</p>
         </div>
-        <Button asChild>
-          <Link href="/candidates/new">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Candidate
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.open(import.meta.env.BASE_URL + 'api/candidates/export', '_blank')}>
+            <Download className="w-4 h-4 mr-2" /> Export CSV
+          </Button>
+          <Button asChild>
+            <Link href="/candidates/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Candidate
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
